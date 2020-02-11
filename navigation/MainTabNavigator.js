@@ -7,7 +7,7 @@ import TabBarIcon from '../components/TabBarIcon';
 import Colors from '../constants/Colors'
 
 import HomeScreen from '../screens/HomeScreen';
-import LinksScreen from '../screens/LinksScreen';
+import FavoriteScreen from '../screens/FavoriteScreen';
 
 const config = Platform.select({
   web: { headerMode: 'screen' },
@@ -28,24 +28,21 @@ const HomeStack = createStackNavigator(
 HomeStack.navigationOptions = {
   tabBarLabel: 'Pesquisar',
   tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name="search"
-    />
+    <TabBarIcon focused={focused} name="search" />
   ),
   tabBarOptions,
 };
 
 HomeStack.path = '';
 
-const LinksStack = createStackNavigator(
+const FavoritesStack = createStackNavigator(
   {
-    Links: LinksScreen,
+    Favorite: FavoriteScreen,
   },
   config
 );
 
-LinksStack.navigationOptions = {
+FavoritesStack.navigationOptions = {
   tabBarLabel: 'Favoritos',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} name="favorite" />
@@ -55,7 +52,7 @@ LinksStack.navigationOptions = {
 
 const tabNavigator = createBottomTabNavigator({
   HomeStack,
-  LinksStack,
+  FavoritesStack,
 });
 
 export default tabNavigator;

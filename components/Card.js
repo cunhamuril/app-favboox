@@ -46,7 +46,7 @@ const Card = ({ id, title, author, publisher, description, thumbnail, buyLink })
     return (
       Array.isArray(author) && author.length > 1
         ? author.join(', ').toString()
-        : author.toString()
+        : author && author.toString()
     )
   }
 
@@ -63,17 +63,12 @@ const Card = ({ id, title, author, publisher, description, thumbnail, buyLink })
         tx => tx.executeSql(
           query,
           [id, title, getAuthors(), publisher, description, thumbnail, buyLink],
-          (_, result) => {
-            console.log(result)
+          _ => {
+            setFavorite(true)
+            Toast.show("Adicionado aos favoritos")
           },
           err => console.error(err),
-        ),
-        err => console.error(err),
-        success => {
-          setFavorite(true)
-          Toast.show("Adicionado aos favoritos")
-          console.log(success) // TEMP
-        }
+        )
       )
     } else {
       query = `
@@ -84,17 +79,12 @@ const Card = ({ id, title, author, publisher, description, thumbnail, buyLink })
         tx => tx.executeSql(
           query,
           [id],
-          (_, result) => {
-            console.log(result)
+          _ => {
+            setFavorite(false)
+            Toast.show("Removido dos favoritos")
           },
           err => console.error(err),
-        ),
-        err => console.error(err),
-        success => {
-          setFavorite(false)
-          Toast.show("Removido dos favoritos")
-          console.log(success) // TEMP
-        }
+        )
       )
     }
   }

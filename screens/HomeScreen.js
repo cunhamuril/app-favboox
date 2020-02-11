@@ -42,7 +42,6 @@ const HomeScreen = () => {
     setLoading(false)
   }
 
-
   return (
     loading ?
       <View style={styles.errorContainer}>

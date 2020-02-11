@@ -8,6 +8,7 @@ export default function App() {
   // Abrir DB
   const db = SQLite.openDatabase("favboox.db")
 
+  // Criar table no SQLite caso não exista
   useEffect(() => {
     function createTable() {
       const query = `
