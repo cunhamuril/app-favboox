@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -20,6 +20,8 @@ const HomeScreen = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const searchInput = useRef()
+
   async function handleSubmit() {
     if (!searchValue) return Toast.show("Informe um valor")
 
@@ -29,13 +31,12 @@ const HomeScreen = () => {
       params: { q: searchValue.toLowerCase() }
     })
 
-    if (res.data.totalItems && res.data.totalItems !== 0) {
+    if (res.data && res.data.totalItems !== 0) {
       setError(false)
       setData(res.data.items)
-      console.log(res.data.items)
     } else {
-      setData([])
       setError(true)
+      setData([])
     }
 
     setLoading(false)
@@ -59,9 +60,11 @@ const HomeScreen = () => {
             value={searchValue}
             onChangeText={text => setSearchValue(text)}
             onSubmitEditing={handleSubmit}
+            ref={searchInput}
           />
           {searchValue.length > 0 &&
             <TouchableOpacity onPress={() => {
+              searchInput.current.focus()
               if (searchValue.length > 0) setSearchValue("")
             }}>
               <Icon name="close" style={styles.iconClean} />
@@ -75,8 +78,9 @@ const HomeScreen = () => {
             ? data.map(book => (
               <Card
                 key={book.id}
+                id={book.id}
                 title={book.volumeInfo.title}
-                author={book.volumeInfo.authors}
+                author={book.volumeInfo.authors ? book.volumeInfo.authors : "Nenhum autor especificado"}
                 description={book.volumeInfo.description}
                 publisher={book.volumeInfo.publisher}
                 thumbnail={book.volumeInfo.imageLinks

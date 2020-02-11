@@ -1,5 +1,5 @@
 import * as WebBrowser from 'expo-web-browser';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -10,22 +10,92 @@ import {
 } from 'react-native';
 import Icon from '@expo/vector-icons/MaterialIcons'
 import Toast from 'react-native-simple-toast'
+import * as SQLite from "expo-sqlite";
 
-const Card = ({ title, author, publisher, description, thumbnail, buyLink }) => {
+const Card = ({ id, title, author, publisher, description, thumbnail, buyLink }) => {
+  const db = SQLite.openDatabase("favboox.db")
+
   const [collapse, setCollapse] = useState(false);
   const [favorite, setFavorite] = useState(false);
+
+  useEffect(() => {
+    function getFavorite() {
+      const query = "SELECT * FROM favorites WHERE id_book = ?"
+
+      db.transaction(
+        tx => tx.executeSql(
+          query,
+          [id],
+          (_, { rows: { _array } }) => {
+            setFavorite(_array.length > 0 ? true : false)
+          },
+          err => console.error(err)
+        )
+      )
+    }
+
+    getFavorite()
+  }, [])
 
   function toggleCollapse() {
     setCollapse(!collapse)
   }
 
-  function handleFavorited() {
-    setFavorite(!favorite)
+  // Função que converte array de author em string
+  function getAuthors() {
+    return (
+      Array.isArray(author) && author.length > 1
+        ? author.join(', ').toString()
+        : author.toString()
+    )
+  }
 
-    if (favorite) {
-      Toast.show("Removido dos favoritos")
+  function handleFavorited() {
+    let query
+
+    if (!favorite) {
+      query = `
+      INSERT INTO favorites (id_book, title, author, publisher, description, thumbnail, buy_link)
+      VALUES (?, ?, ?, ?, ?, ?, ?);
+      `
+
+      db.transaction(
+        tx => tx.executeSql(
+          query,
+          [id, title, getAuthors(), publisher, description, thumbnail, buyLink],
+          (_, result) => {
+            console.log(result)
+          },
+          err => console.error(err),
+        ),
+        err => console.error(err),
+        success => {
+          setFavorite(true)
+          Toast.show("Adicionado aos favoritos")
+          console.log(success) // TEMP
+        }
+      )
     } else {
-      Toast.show("Adicionado aos favoritos")
+      query = `
+      DELETE FROM favorites WHERE id_book = ?
+      `
+
+      db.transaction(
+        tx => tx.executeSql(
+          query,
+          [id],
+          (_, result) => {
+            console.log(result)
+          },
+          err => console.error(err),
+        ),
+        err => console.error(err),
+        success => {
+          setFavorite(false)
+          Toast.show("Removido dos favoritos")
+          console.log(success) // TEMP
+        }
+      )
     }
   }
 
@@ -37,7 +107,7 @@ const Card = ({ title, author, publisher, description, thumbnail, buyLink }) => 
           <View style={styles.infoContainer}>
             <Text style={{ color: "#444", fontSize: 20 }}>{title}</Text>
             <Text style={{ color: "#AAA", marginTop: 5 }}>
-              {typeof author === "array" && author.length > 1 ? author.join(',') : author}
+              {getAuthors()}
             </Text>
             <Text style={{ color: "#AAA", marginTop: 5 }}>{publisher}</Text>
           </View>
