@@ -23,8 +23,13 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.studying.favboox",
+      "versionCode": 1
     }
   }
 }
